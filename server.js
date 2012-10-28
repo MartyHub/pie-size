@@ -9,7 +9,7 @@ var server = http.createServer(app);
 io = io.listen(server);
 
 io.sockets.on('connection', function(socket) {
-	socket.on('size', function(basePath, lastName) {
+	socket.on('size', function(basePath, lastName, noCache) {
 		var handler = {
 			start: function(name) {
 				socket.emit('start', name);
@@ -22,7 +22,7 @@ io.sockets.on('connection', function(socket) {
 			}
 		}
 
-		treenode.size(basePath, lastName, handler);
+		treenode.size(basePath, lastName, handler, noCache);
 	});
 });
 

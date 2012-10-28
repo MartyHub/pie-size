@@ -90,18 +90,10 @@ $(function() {
             var text = $('#header').text();
             var length = text.length;
 
-            if(text.charAt(length - 1) == '.') {
-                if(text.charAt(length - 2) == '.') {
-                    if(text.charAt(length - 3) == '.') {
-                        text = text.substr(0, length - 3);
-                    } else {
-                        text += '.';
-                    }
-                } else {
-                    text += '.';
-                }
-            } else {
+            if(text.length < 3) {
                 text += '.';
+            } else {
+                text = '.';
             }
 
             $('#header').text(text);
@@ -109,10 +101,15 @@ $(function() {
     }
 
     socket.on('start', function(name) {
-        $('#header').text('Scanning ' + name);
+        if(chart) {
+            chart.destroy();
+        }
 
-        createInterval();
+        createChart();
 
+        chart.options.lang.loading = 'Scanning ' + name;
+
+        chart.showLoading();
     });
 
     socket.on('file', function(name, size, isFolder) {
@@ -120,12 +117,8 @@ $(function() {
     });
 
     socket.on('end', function(currentName, currentSize) {
-        clearInterval(interval);
-
         path = currentName;
         size = currentSize;
-
-        $('#header').text('Creating graph for ' + path);
 
         setTimeout(function() {
             updateChart();
@@ -135,6 +128,10 @@ $(function() {
     function updateChart() {
         chart.series[0].setData(data);
         chart.hideLoading();
+
+        if(interval) {
+            clearInterval(interval);
+        }
 
         $('#header').empty();
 
@@ -151,20 +148,24 @@ $(function() {
     }
 
     function updatePath(basePath, lastName) {
-        $('#header').empty();
+        $('#header').text('...');
 
-        if(chart) {
-            chart.destroy();
-        }
+        createInterval();
 
         data = [];
 
-        createChart();
-
-        chart.showLoading();
-
-        socket.emit('size', basePath, lastName);
+        socket.emit('size', basePath, lastName, $('#noCache').attr('checked'));
     }
+
+    $('#path').keypress(function(e) {
+        if(e.which == 13) {
+            updatePath($('#path').val());
+        }
+    });
+
+    $('#go').click(function() {
+        updatePath($('#path').val());
+    });
 
     updatePath();
 });

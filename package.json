@@ -21,7 +21,8 @@
   "dependencies": {
     "connect": ">=2.6.1",
     "socket.io": ">=0.9.10",
-    "open": ">=0.0.2"
+    "open": ">=0.0.2",
+    "memoizee": ">=0.2.3"
   },
   "engines": {
     "node": ">=0.8.14"

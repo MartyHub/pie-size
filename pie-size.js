@@ -1,43 +1,41 @@
 var fs = require("fs");
 var path = require('path');
-var cache = {};
+var memoize = require('memoizee');
 
 function getDirectorySize(directory) {
-	var result = cache[directory];
+	var result = 0;
 
-	if(typeof(result) == 'undefined') {
-		result = 0;
+	try {
+		var dir = fs.readdirSync(directory);
 
-		try {
-			var dir = fs.readdirSync(directory);
+		dir.map(function(file) {
+			try {
+				var child = path.join(directory, file);
+				var stat = fs.lstatSync(child);
 
-			dir.map(function(file) {
-				try {
-					var child = path.join(directory, file);
-					var stat = fs.lstatSync(child);
-
-					if(!stat.isSymbolicLink()) {
-						if(stat.isFile()) {
-							result += stat.size;
-						} else if(stat.isDirectory()) {
-							result += getDirectorySize(child);
-						}
+				if(!stat.isSymbolicLink()) {
+					if(stat.isFile()) {
+						result += stat.size;
+					} else if(stat.isDirectory()) {
+						result += memoized(child);
 					}
-				} catch(err) {}
-			});
-		} catch(err) {}
-
-		cache[directory] = result;
-	}
+				}
+			} catch(err) {}
+		});
+	} catch(err) {}
 
 	return result;
 }
+
+var memoized = memoize(getDirectorySize, {
+	primitive: true
+});
 
 function getUserHome() {
 	return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
 }
 
-function size(basePath, lastName, handler) {
+function size(basePath, lastName, handler, noCache) {
 	if(basePath == null) {
 		basePath = getUserHome();
 	}
@@ -50,6 +48,10 @@ function size(basePath, lastName, handler) {
 
 	handler.start(currentPath);
 
+	if (noCache) {
+		memoized.clearAll();
+	}
+
 	var dir = fs.readdirSync(currentPath);
 	var currentSize = 0;
 
@@ -61,7 +63,7 @@ function size(basePath, lastName, handler) {
 
 			if(!stat.isSymbolicLink()) {
 				if(stat.isDirectory()) {
-					var childSize = getDirectorySize(childPath);
+					var childSize = memoized(childPath);
 
 					if(childSize > 0) {
 						currentSize += childSize;
