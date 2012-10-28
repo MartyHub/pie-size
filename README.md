@@ -8,4 +8,8 @@ Simple disk space analyzer made with :
 - [Socket.IO](http://socket.io/)
 - [Highcharts](http://www.highcharts.com/)
 
-![sample](http://)
+A browser window should be opened once the application started :
+
+`node server.js`
+
+![sample](https://raw.github.com/MartyHub/pie-node/master/sample.png)
