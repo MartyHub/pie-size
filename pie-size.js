@@ -36,7 +36,7 @@ function getUserHome() {
 }
 
 function size(basePath, lastName, handler, noCache) {
-	if(basePath == null) {
+	if(basePath == null || basePath == '') {
 		basePath = getUserHome();
 	}
 
@@ -45,6 +45,8 @@ function size(basePath, lastName, handler, noCache) {
 	if(lastName != null) {
 		currentPath = path.join(basePath, lastName);
 	}
+
+	currentPath = path.resolve(currentPath);
 
 	handler.start(currentPath);
 
@@ -78,6 +80,12 @@ function size(basePath, lastName, handler, noCache) {
 			}
 		} catch(err) {}
 	});
+
+	var length = currentPath.length;
+
+	if (currentPath != '/' && currentPath.charAt(length - 1) == '/') {
+		currentPath = currentPath.substring(0, length - 1);
+	}
 
 	handler.end(currentPath, currentSize);
 }

@@ -29,7 +29,7 @@ $(function() {
                     cursor: 'pointer',
                     dataLabels: {
                         formatter: function() {
-                            return '<b>' + this.point.name + '</b>: ' + formatSize(this.y);
+                            return '<strong>' + this.point.name + '</strong>: ' + formatSize(this.y);
                         }
                     }
                 }
@@ -52,14 +52,14 @@ $(function() {
             },
             tooltip: {
                 formatter: function() {
-                    return '<b>' + this.point.name + '</b>: ' + numeral(this.percentage).format('0.00') + ' %';
+                    return '<strong>' + this.point.name + '</strong>: ' + numeral(this.percentage).format('0.00') + ' %';
                 }
             }
         });
     }
 
     function createPathElement(basePath, name) {
-        var result = basePath + name;
+        var result = basePath + '/' + name;
         var element = document.createElement('a');
 
         element.textContent = name;
@@ -73,14 +73,7 @@ $(function() {
             });
         }
 
-        element.addEventListener('mouseover', function(event) {
-            element.style.fontWeight = 'bold';
-        });
-        element.addEventListener('mouseout', function(event) {
-            element.style.fontWeight = 'normal';
-        });
-
-        $('#header').append(element);
+        $('#header').append('<li>').append(element).append('<span class="divider">/</span></li>');
 
         return result;
     }
@@ -107,7 +100,7 @@ $(function() {
 
         createChart();
 
-        chart.options.lang.loading = 'Scanning ' + name;
+        chart.options.lang.loading = 'Loading ' + name;
 
         chart.showLoading();
     });
@@ -135,27 +128,60 @@ $(function() {
 
         $('#header').empty();
 
-        var basePath = createPathElement('', '/');
+        var element = document.createElement('a');
+
+        element.textContent = '/';
+        element.title = 'Root';
+        element.style.cursor = 'pointer';
+        element.addEventListener('click', function(event) {
+            updatePath('/');
+        });
+
+        $('#header').append('<li>').append(element).append('<span class="divider"></span></li>');
+
+        var basePath = '';
         var names = path.split('/');
+        var lastIndex = names.length - 1;
 
         $.each(names, function(index, name) {
-            if(name != '') {
-                basePath = createPathElement(basePath, name + '/');
+            if(name != '' && index != lastIndex) {
+                basePath = createPathElement(basePath, name);
             }
         });
 
-        $('#header').append(' : ' + formatSize(size));
+        $('#header').append('<li class="active">' + names[lastIndex] + '</li>');
+
+        $('#size').text(formatSize(size));
+
+        $('#path').focus();
     }
 
-    function updatePath(basePath, lastName) {
+    function updatePath(basePath, lastName, overrideNoCache) {
         $('#header').text('...');
+        $('#size').html('&nbsp;');
 
         createInterval();
 
         data = [];
 
-        socket.emit('size', basePath, lastName, $('#noCache').attr('checked'));
+        if(overrideNoCache === undefined) {
+            overrideNoCache = $('#noCache').attr('checked');
+        }
+
+        socket.emit('size', basePath, lastName, overrideNoCache);
     }
+
+    function refresh() {
+        updatePath(path, undefined, true);
+    }
+
+    $('#refresh').click(function() {
+        refresh();
+    });
+
+    $('#home').click(function() {
+        goHome();
+    });
 
     $('#path').keypress(function(e) {
         if(e.which == 13) {
@@ -163,8 +189,34 @@ $(function() {
         }
     });
 
+    function goHome() {
+        updatePath();
+    }
+
     $('#go').click(function() {
         updatePath($('#path').val());
+    });
+
+    $(document).keydown(function(e) {
+        if(e.ctrlKey && e.altKey) {
+            if(e.which == 71 && !$('#path').is(':focus')) {
+                $('#path').focus();
+
+                return false;
+            } else if(e.which == 72) {
+                goHome();
+
+                return false;
+            } else if(e.which == 67) {
+                $('#noCache').attr('checked', !$('#noCache').attr('checked'));
+
+                return false;
+            } else if(e.which == 82) {
+                refresh();
+
+                return false;
+            }
+        }
     });
 
     updatePath();
