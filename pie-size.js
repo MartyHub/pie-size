@@ -48,7 +48,7 @@ function size(basePath, lastName, handler, noCache) {
 
 	currentPath = path.resolve(currentPath);
 
-	handler.start(currentPath);
+	handler.start(currentPath, path.sep);
 
 	if (noCache) {
 		memoized.clearAll();
@@ -83,11 +83,11 @@ function size(basePath, lastName, handler, noCache) {
 
 	var length = currentPath.length;
 
-	if (currentPath != '/' && currentPath.charAt(length - 1) == '/') {
+	if (currentPath != path.sep && currentPath.charAt(length - 1) == path.sep) {
 		currentPath = currentPath.substring(0, length - 1);
 	}
 
-	handler.end(currentPath, currentSize);
+	handler.end(currentSize);
 }
 
 exports.size = size;

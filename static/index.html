@@ -31,6 +31,25 @@
                 </div>
             </div>
             <div class="row">
+                <div class="span12 collapse" style="text-align: center" id="top3">
+                    <p style="text-align: center"><strong>Top 3</strong></p>
+                    <table class="table table-hover table-condensed">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center">#</th>
+                                <th>Name</th>
+                                <th style="text-align: right">Size</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr id="top3_1"></tr>
+                            <tr id="top3_2"></tr>
+                            <tr id="top3_3"></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
                 <div id="container" class="span12" style="height: 550px"></div>
             </div>
             <div class="row">
@@ -45,11 +64,44 @@
             </div>
             <div class="row">
                 <div class="offset2 span8 input-append">
-                    <a id="refresh" class="btn" title="Refresh (CTRL + ALT + r)"><i class="icon-refresh"></i></a>
-                    <a id="home" class="btn" title="Home (CTRL + ALT + h)"><i class="icon-home"></i></a>
+                    <a id="refresh" class="btn" rel="tooltip" title="Refresh (CTRL + ALT + r)"><i class="icon-refresh"></i></a>
+                    <a id="home" class="btn" rel="tooltip" title="Home (CTRL + ALT + h)"><i class="icon-home"></i></a>
                     <input type="text" class="input-xxlarge" id="path" placeholder="Press CTRL + ALT + g to focus and /enter/a/path">
-                    <a id="go" class="btn btn-primary" title="Go"><i class="icon-search icon-white"></i></a>
+                    <a id="go" class="btn btn-primary" rel="tooltip" title="Go"><i class="icon-search icon-white"></i></a>
                 </div>
+            </div>
+        </div>
+
+        <div class="modal" id="top10" role="dialog" style="display: none">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h3>Top 10 from History</h3>
+            </div>
+            <div class="modal-body">
+                <table class="table table-hover table-condensed">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center">#</th>
+                            <th>Name</th>
+                            <th style="text-align: right">Size</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr id="top10_1"></tr>
+                        <tr id="top10_2"></tr>
+                        <tr id="top10_3"></tr>
+                        <tr id="top10_4"></tr>
+                        <tr id="top10_5"></tr>
+                        <tr id="top10_6"></tr>
+                        <tr id="top10_7"></tr>
+                        <tr id="top10_8"></tr>
+                        <tr id="top10_9"></tr>
+                        <tr id="top10_10"></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" data-dismiss="modal">Close</button>
             </div>
         </div>
 

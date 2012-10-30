@@ -8,17 +8,19 @@ var server = http.createServer(app);
 
 io = io.listen(server);
 
+io.set('log level', 1);
+
 io.sockets.on('connection', function(socket) {
 	socket.on('size', function(basePath, lastName, noCache) {
 		var handler = {
-			start: function(name) {
-				socket.emit('start', name);
+			start: function(name, sep) {
+				socket.emit('start', name, sep);
 			},
 			onFile: function(name, size, isFolder) {
 				socket.emit('file', name, size, isFolder);
 			},
-			end: function(name, size) {
-				socket.emit('end', name, size);
+			end: function(size) {
+				socket.emit('end', size);
 			}
 		}
 
