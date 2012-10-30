@@ -12,4 +12,4 @@ A browser window should be opened once the application started :
 
 `node server.js`
 
-![sample](https://raw.github.com/MartyHub/pie-node/master/sample.png)
+![sample](https://raw.github.com/MartyHub/pie-size/master/sample.png)
