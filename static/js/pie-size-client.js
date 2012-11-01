@@ -2,7 +2,7 @@ $(function() {
     numeral.language('fr');
 
     var socket = io.connect();
-    var data, sep, path, size, chart, interval;
+    var data, root, sep, path, size, chart, interval;
     var top3 = [],
         top10 = [];
 
@@ -75,7 +75,9 @@ $(function() {
         element.title = result;
         element.rel = "tooltip()";
 
-        $(element).tooltip({'placement': 'bottom'});
+        $(element).tooltip({
+            'placement': 'bottom'
+        });
 
         if(result != path) {
             element.style.cursor = 'pointer';
@@ -105,7 +107,12 @@ $(function() {
         }, 1000);
     }
 
-    socket.on('start', function(name, pathSeparator) {
+    socket.on('init', function(rootPath, pathSeparator) {
+        root = rootPath;
+        sep = pathSeparator;
+    });
+
+    socket.on('start', function(name) {
         if(chart) {
             chart.destroy();
         }
@@ -117,7 +124,6 @@ $(function() {
         chart.showLoading();
 
         path = name;
-        sep = pathSeparator;
 
         for(var i = 0; i < 3; ++i) {
             top3[i] = {
@@ -180,14 +186,16 @@ $(function() {
 
         var element = document.createElement('a');
 
-        element.textContent = sep;
+        element.textContent = root;
         element.rel = 'tooltip';
         element.title = 'Root';
         element.style.cursor = 'pointer';
         element.addEventListener('click', function(event) {
             updatePath('/');
         });
-        $(element).tooltip({'placement': 'bottom'});
+        $(element).tooltip({
+            'placement': 'bottom'
+        });
 
         header.append('<li>').append(element).append('<span class="divider"></span></li>');
 
@@ -312,32 +320,32 @@ $(function() {
     });
 
     $(document).keydown(function(e) {
-        if(e.ctrlKey && e.altKey) {
-            if(e.which == 71) {
+        if(e.which == 27) {
+            var top10 = $('#top10');
+
+            if(top10.css('display') != 'hidden') {
+                top10.modal('hide');
+
+                e.preventDefault();
+            }
+        } else if(e.ctrlKey && e.altKey) {
+            if(e.which == 71) { // G
                 $('#top3').collapse('hide');
                 $('#path').select();
-
-                return false;
-            } else if(e.which == 72) {
+            } else if(e.which == 72) { // H
                 goHome();
-
-                return false;
-            } else if(e.which == 67) {
+            } else if(e.which == 67) { // C
                 $('#noCache').attr('checked', !$('#noCache').attr('checked'));
-
-                return false;
-            } else if(e.which == 82) {
+            } else if(e.which == 82) { // R
                 refresh();
-
-                return false;
-            } else if(e.which == 84) {
+            } else if(e.which == 84) { // T
                 $('#top3').collapse('toggle');
-
-                return false;
-            } else if(e.which == 89) {
+            } else if(e.which == 89) { // Y
                 $('#top10').modal('toggle');
+            } else if(e.which == 38) { // up arrow
+                updatePath(path, '..');
 
-                return false;
+                e.preventDefault();
             }
         }
     });

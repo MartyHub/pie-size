@@ -17,7 +17,7 @@ function getDirectorySize(directory) {
 					if(stat.isFile()) {
 						result += stat.size;
 					} else if(stat.isDirectory()) {
-						result += memoized(child);
+						result += mem_getDirectorySize(child);
 					}
 				}
 			} catch(err) {}
@@ -27,7 +27,7 @@ function getDirectorySize(directory) {
 	return result;
 }
 
-var memoized = memoize(getDirectorySize, {
+var mem_getDirectorySize = memoize(getDirectorySize, {
 	primitive: true
 });
 
@@ -35,9 +35,33 @@ function getUserHome() {
 	return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
 }
 
+var mem_getUserHome = memoize(getUserHome);
+
+function getRoot() {
+	var currentPath = mem_getUserHome();
+
+	while(true) {
+		var newPath = path.resolve(currentPath, '..');
+
+		if(newPath == currentPath) {
+			break;
+		} else {
+			currentPath = newPath;
+		}
+	}
+
+	return currentPath;
+}
+
+var mem_getRoot = memoize(getRoot);
+
+function init(callback) {
+	callback(mem_getRoot(), path.sep);
+}
+
 function size(basePath, lastName, handler, noCache) {
 	if(basePath == null || basePath == '') {
-		basePath = getUserHome();
+		basePath = mem_getUserHome();
 	}
 
 	var currentPath = basePath;
@@ -48,10 +72,10 @@ function size(basePath, lastName, handler, noCache) {
 
 	currentPath = path.resolve(currentPath);
 
-	handler.start(currentPath, path.sep);
+	handler.start(currentPath);
 
-	if (noCache) {
-		memoized.clearAll();
+	if(noCache) {
+		mem_getDirectorySize.clearAll();
 	}
 
 	var dir = fs.readdirSync(currentPath);
@@ -65,7 +89,7 @@ function size(basePath, lastName, handler, noCache) {
 
 			if(!stat.isSymbolicLink()) {
 				if(stat.isDirectory()) {
-					var childSize = memoized(childPath);
+					var childSize = mem_getDirectorySize(childPath);
 
 					if(childSize > 0) {
 						currentSize += childSize;
@@ -83,11 +107,12 @@ function size(basePath, lastName, handler, noCache) {
 
 	var length = currentPath.length;
 
-	if (currentPath != path.sep && currentPath.charAt(length - 1) == path.sep) {
+	if(currentPath != path.sep && currentPath.charAt(length - 1) == path.sep) {
 		currentPath = currentPath.substring(0, length - 1);
 	}
 
 	handler.end(currentSize);
 }
 
+exports.init = init;
 exports.size = size;
