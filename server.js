@@ -3,7 +3,7 @@ var http = require('http');
 var io = require('socket.io');
 var open = require('open');
 var pie = require("./pie-size");
-var app = connect().use(connect.static(__dirname + '/static'));
+var app = connect().use(connect.static('public'));
 var server = http.createServer(app);
 
 io = io.listen(server);

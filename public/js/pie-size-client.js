@@ -68,24 +68,21 @@ $(function() {
     }
 
     function createPathElement(basePath, name) {
-        var result = basePath + sep + name;
+        var result = basePath + name + sep;
         var element = document.createElement('a');
 
         element.textContent = name;
         element.title = result;
         element.rel = "tooltip()";
+        element.style.cursor = 'pointer';
 
         $(element).tooltip({
             'placement': 'bottom'
         });
 
-        if(result != path) {
-            element.style.cursor = 'pointer';
-
-            element.addEventListener('click', function(event) {
-                updatePath(result);
-            });
-        }
+        element.addEventListener('click', function(event) {
+            updatePath(result);
+        });
 
         $('#header').append('<li>').append(element).append('<span class="divider">' + sep + '</span></li>');
 
@@ -191,7 +188,7 @@ $(function() {
         element.title = 'Root';
         element.style.cursor = 'pointer';
         element.addEventListener('click', function(event) {
-            updatePath('/');
+            updatePath(root);
         });
         $(element).tooltip({
             'placement': 'bottom'
@@ -199,8 +196,8 @@ $(function() {
 
         header.append('<li>').append(element).append('<span class="divider"></span></li>');
 
-        var basePath = '';
-        var names = path.split(sep);
+        var basePath = root;
+        var names = path.substring(root.length, path.length).split(sep);
         var lastIndex = names.length - 1;
 
         $.each(names, function(index, name) {
